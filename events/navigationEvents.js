@@ -1,19 +1,29 @@
+import { getAuthors, getFavoriteAuthors } from '../api/authorData';
+import { booksOnSale, getBooks } from '../api/bookData';
+import { showAuthors, emptyAuthors } from '../pages/authors';
+import { showBooks, emptyBooks } from '../pages/books';
 import { signOut } from '../utils/auth';
 
 // navigation events
-const navigationEvents = () => {
+const navigationEvents = (user) => {
   // LOGOUT BUTTON
   document.querySelector('#logout-button')
     .addEventListener('click', signOut);
 
   // TODO: BOOKS ON SALE
   document.querySelector('#sale-books').addEventListener('click', () => {
-    console.warn('CLICKED SALE BOOKS');
+    booksOnSale(user.uid).then(showBooks);
   });
 
   // TODO: ALL BOOKS
   document.querySelector('#all-books').addEventListener('click', () => {
-    console.warn('CLICKED ALL BOOKS');
+    getBooks(user.uid).then((bookArray) => {
+      if (bookArray.length) {
+        showBooks(bookArray);
+      } else {
+        emptyBooks();
+      }
+    });
   });
 
   // FIXME: STUDENTS Create an event listener for the Authors
@@ -22,6 +32,17 @@ const navigationEvents = () => {
   // 3. If the array is empty because there are no authors, make sure to use the emptyAuthor function
   document.querySelector('#authors').addEventListener('click', () => {
     console.warn('CLICKED AUTHORS');
+    getAuthors(user.uid).then((authorArray) => {
+      if (authorArray.length) {
+        showAuthors(authorArray);
+      } else {
+        emptyAuthors();
+      }
+    });
+  });
+  // FAVORITE AUTHORS
+  document.querySelector('#favorite-authors').addEventListener('click', () => {
+    getFavoriteAuthors(user.uid).then(showAuthors);
   });
 
   // STRETCH: SEARCH
@@ -32,6 +53,7 @@ const navigationEvents = () => {
     // WHEN THE USER PRESSES ENTER, MAKE THE API CALL AND CLEAR THE INPUT
     if (e.keyCode === 13) {
       // MAKE A CALL TO THE API TO FILTER ON THE BOOKS
+      showBooks(searchValue);
       // IF THE SEARCH DOESN'T RETURN ANYTHING, SHOW THE EMPTY STORE
       // OTHERWISE SHOW THE STORE
 
